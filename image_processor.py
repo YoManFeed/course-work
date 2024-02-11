@@ -2,7 +2,6 @@ import my_logging
 from params import *
 from file_manager import FileManager
 import cv2
-from PIL import Image
 
 
 class ImageGenerator:
@@ -11,7 +10,6 @@ class ImageGenerator:
         self.inner_arches = ImageProcessor().read_arches(quantity=self.inner_quantity, draw_circle=True)
         self.external_arches = ImageProcessor().read_arches(quantity=self.external_quantity, draw_circle=False)
 
-    # @staticmethod
     def draw(self, external_line_neg, shifted_inner_code, step=None, inn_counter=None, ex_counter=None, res=None, show=False):
         code_external = [max(0, x) for x in external_line_neg]
         code_inner = [max(0, x) for x in shifted_inner_code]
@@ -102,12 +100,6 @@ class ImageGenerator:
             my_logging.show_me(dst)
 
 
-        # coloring
-        # if bool_color_bgrd:
-        #     output_path_colored = os.path.join(f'{output_folder}_colored/external_{ex_counter}', new_filename)
-        #     data_colored = Image.fromarray(self.coloring(image=dst))
-        #     data_colored.save(output_path_colored)
-
 class ImageProcessor:
     def __init__(self):
         pass
@@ -174,5 +166,4 @@ class ImageProcessor:
             img_paths[i] = os.path.join(current_dir, f'{arch_type}/deg_{deg}/{arch_type}_arch_{i}.png')
             images[i] = ImageProcessor.remove_background(ImageProcessor.read_transparent_png(img_paths[i]))
         return images
-
 

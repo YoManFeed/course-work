@@ -9,7 +9,6 @@ def show_logs(flag):
         bool_generate_again = {bool_generate_again} \n\
         bool_draw_circle = {bool_draw_circle} \n\
         bool_save_codes = {bool_save_codes} \n\
-        bool_color_bgrd = {bool_color_bgrd} \n\
         bool_show_log = {bool_show_log} \n\
         bool_save_pics = {bool_save_pics} \n\
         bool_prohibit = {bool_prohibit}')
@@ -28,6 +27,7 @@ def show(list, row):
             n -= 1
             print(elem)
     print('')
+
 
 def show_me(image):
     cv2.imshow('image', image)

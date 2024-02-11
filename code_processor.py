@@ -1,4 +1,3 @@
-import numpy as np
 from math import copysign
 from params import *
 from file_manager import FileManager
@@ -85,7 +84,6 @@ class EncodingProcessor:
                 counter -= 1
         return True
 
-
     @staticmethod
     def remove_repeated(codes: list[list[int]]) -> list[list[int]]:
         non_repeated = []
@@ -140,17 +138,6 @@ class EncodingProcessor:
                 return False
         return True
 
-    # @staticmethod
-    # def axes_of_symmetry(code):
-    #     axes = []
-    #     sum = 0
-    #     left_index = 0
-    #     for i, digit in enumerate(code):
-    #         sum += digit
-    #         if sum == 0:
-    #             axes.append((left_index + i) // 2 + 1)
-    #             left_index = i + 1
-    #     return axes
     @staticmethod
     def axes_of_symmetry(code):
         sum = 0
@@ -163,24 +150,6 @@ class EncodingProcessor:
     def symmetric_inner_code(code, ax):
         code = (-1 * np.roll(code, -ax))[::-1]
         return np.roll(code, ax).tolist()
-
-    # @staticmethod
-    # def cusum_double_check(code):
-    #     s1 = 0
-    #     s2 = 0
-    #     for digit in code:
-    #         if digit < 0:
-    #             s1 += 1
-    #         else:
-    #             break
-    #
-    #     for digit in reversed(code):
-    #         if digit > 0:
-    #             s2 += 1
-    #         else:
-    #             break
-    #
-    #     return max(s1, s2)
 
     @staticmethod
     def cusum(code):
@@ -199,7 +168,6 @@ class EncodingProcessor:
         for i, (elem1, elem2) in enumerate(zip(ex_code, in_code), start=1):
             bezu_arr[i] = self.sign(elem1) + self.sign(elem2) + bezu_arr[i-1]
         bezu_arr = bezu_arr[1:]
-        # if min(bezu_arr) < 0:
         bezu_arr += self.cusum(in_code)
         return bezu_arr
 
@@ -208,15 +176,11 @@ class EncodingProcessor:
         return sum(sorted(code)[-2:])
 
     def Bezu_prohibit(self, code, bezu_code):
-        # print(code)
-        # print(bezu_code)
         indices = np.where((code == 1) | (code == -1))[0]
         pairs = bezu_code[indices]
 
-        # print(pairs)
         odd = pairs[1::2]
         even = pairs[::2]
-        # print(odd, even)
 
         if (self.max_sum(odd) > deg) or (self.max_sum(even) > deg):
             return False
