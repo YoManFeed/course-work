@@ -1,4 +1,5 @@
 from params import *
+import cv2
 
 
 def show_logs(flag):
@@ -27,3 +28,8 @@ def show(list, row):
             n -= 1
             print(elem)
     print('')
+
+def show_me(image):
+    cv2.imshow('image', image)
+    cv2.waitKey(0)
+    cv2.destroyAllWindows()

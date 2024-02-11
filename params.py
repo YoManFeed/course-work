@@ -1,17 +1,17 @@
 import numpy as np
 import os
 
-bool_generate_again = 0  # Надо ли ещё раз генерировать коды через данную степень
+bool_generate_again = 1  # Надо ли ещё раз генерировать коды через данную степень
 bool_save_codes = 0      # Надо ли сохранять коды
-bool_draw_circle = 1     # Надо ли рисовать круг
+bool_draw_circle = 0     # Надо ли рисовать круг
 bool_color_bgrd = 0      # Надо ли красить и сохранять задний фон
 bool_show_log = 1        # Показывать логи
 bool_save_pics = 1       # Надо ли сохранять картинки
 bool_prohibit = 1        # Надо ли запрещать расположения
-bool_labeling = 0        # Надо ли писать коды на картинках
+bool_labeling = 1        # Надо ли писать коды на картинках
 
 # Глобальные параметры
-deg = 8
+deg = 6
 arches = deg * 2
 border = deg / 2  # какие длины дуг запрещены для внутренних кодировок
 

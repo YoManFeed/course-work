@@ -1,3 +1,4 @@
+import my_logging
 from params import *
 from file_manager import FileManager
 import cv2
@@ -7,18 +8,19 @@ from PIL import Image
 class ImageGenerator:
     def __init__(self):
         self.inner_quantity, self.external_quantity = FileManager().get_quantity()
-        self.inner_arches = ImageProcessor().read_arches(quantity=self.inner_quantity, draw_circle=bool_draw_circle)
+        self.inner_arches = ImageProcessor().read_arches(quantity=self.inner_quantity, draw_circle=True)
         self.external_arches = ImageProcessor().read_arches(quantity=self.external_quantity, draw_circle=False)
 
     # @staticmethod
-    def draw(self, external_line_neg, shifted_inner_code, step, inn_counter, ex_counter):
+    def draw(self, external_line_neg, shifted_inner_code, step=None, inn_counter=None, ex_counter=None, res=None, show=False):
         code_external = [max(0, x) for x in external_line_neg]
         code_inner = [max(0, x) for x in shifted_inner_code]
         # code_inner = [max(0, x) for x in shifted_inner_code.tolist()]
         inner_circle = self.gather_arches(code=code_inner, arches_type=self.inner_arches)
         external_circle = self.gather_arches(code=code_external, arches_type=self.external_arches)
-        self.combining(inner_circle, external_circle, step, inn_counter, ex_counter, external_line_neg,
-                  shifted_inner_code)
+        self.combining(
+            inner=inner_circle, external=external_circle, external_line=external_line_neg, step=step,
+            inner_line=shifted_inner_code, ex_counter=ex_counter, inn_counter=inn_counter, res=res, show=show)
 
     # makes inner and external
     def gather_arches(self, code, arches_type):
@@ -34,9 +36,6 @@ class ImageGenerator:
     def rotation(self, image, angle):
         rot_mat = cv2.getRotationMatrix2D(angle=-angle, scale=1., center=(256, 256))
         rotated_circle = cv2.warpAffine(image, rot_mat, image.shape[1::-1], flags=cv2.INTER_LINEAR, borderMode=1)
-        rgb_rotated_circle = rotated_circle[:, :, :3]
-        rotated_circle = ImageProcessor.remove_background(
-            rgb_rotated_circle)  # при повороте цвета пикселей становятся серыми, надо исправить
         return rotated_circle
 
     def combine(self, img1, img2):
@@ -55,25 +54,25 @@ class ImageGenerator:
 
         return result
 
-    def combining(self, inner, external, step, inn_counter, ex_counter, external_line, inner_line):
-        # angle = step * rotation_angle
-        angle = step * 0
-        rotated_inner = self.rotation(image=inner, angle=angle)
+    def combining(self, inner, external, external_line, inner_line, step=None, inn_counter=None, ex_counter=None, res=None, show=None):
         # combining
-        combination = cv2.addWeighted(external, 0.5, rotated_inner, 0.5, 0)
+        combination = cv2.addWeighted(external, 0.5, inner, 0.5, 0)
         gray = cv2.cvtColor(combination, cv2.COLOR_BGR2HSV)[:, :, 2]
         T = cv2.ximgproc.niBlackThreshold(gray, maxValue=255, type=cv2.THRESH_BINARY_INV, blockSize=81,
                                           k=0.1, binarizationMethod=cv2.ximgproc.BINARIZATION_WOLF)
         grayb = (gray > T).astype("uint8") * 255
-        dst = grayb
 
         # smoothing
-        dst = cv2.GaussianBlur(dst, (3, 3), 0)
+        dst = cv2.GaussianBlur(grayb, (3, 3), 0)
 
         # labeling
         if bool_labeling:
             upper_text = ''.join([str(num) if num < 0 else f' {num}' for num in external_line])
             bottom_text = ''.join([str(num) if num < 0 else f' {num}' for num in inner_line])
+            if res is None:
+                pass
+            else:
+                extra_text = ''.join([str(num) if num < 0 else f' {num}' for num in res])
             font = cv2.FONT_HERSHEY_DUPLEX
             font_scale = 0.8
             font_color = (120, 0, 120)
@@ -85,12 +84,23 @@ class ImageGenerator:
             cv2.putText(dst, upper_text, org_1, font, font_scale, font_color, thickness)
             cv2.putText(dst, bottom_text, org_2, font, font_scale, font_color, thickness)
 
+            if res is None:
+                pass
+            else:
+                org_3 = (25, 75)
+                cv2.putText(dst, extra_text, org_3, font, font_scale, font_color, thickness)
+
         # saving
-        if bool_save_pics:
+        if bool_save_pics and ex_counter is not None and inn_counter is not None and step is not None:
+            FileManager.make_dirs(ex_counter)
             new_filename = f'circle_e{ex_counter}_i{inn_counter}_s{step}.png'
             output_path = os.path.join(f'{output_folder}/external_{ex_counter}', new_filename)
-            data = Image.fromarray(dst)
-            data.save(output_path)
+            # output_path = os.path.join(f'{output_folder}', new_filename)
+            FileManager.save_img(img=dst, path=output_path)
+
+        if show:
+            my_logging.show_me(dst)
+
 
         # coloring
         # if bool_color_bgrd:
@@ -164,3 +174,5 @@ class ImageProcessor:
             img_paths[i] = os.path.join(current_dir, f'{arch_type}/deg_{deg}/{arch_type}_arch_{i}.png')
             images[i] = ImageProcessor.remove_background(ImageProcessor.read_transparent_png(img_paths[i]))
         return images
+
+

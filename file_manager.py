@@ -1,5 +1,6 @@
 from params import *
 from icecream import ic
+from PIL import Image
 
 
 class FileManager:
@@ -9,6 +10,9 @@ class FileManager:
         self.image_path_circle = os.path.join(current_dir, 'circle.png')
         self.image_path_transparent = os.path.join(current_dir, 'transparent.png')
         self.inner_quantity, self.external_quantity = self.get_quantity()
+        if bool_save_pics:
+            self.make_dirs(self.external_quantity)
+
 
     def get_quantity(self):
         for kind in ['inner', 'external']:
@@ -52,7 +56,11 @@ class FileManager:
 
     @staticmethod
     def make_dirs(ex_counter):
-        if bool_save_pics and f'external_{ex_counter}' not in os.listdir(output_folder):
+        if f'external_{ex_counter}' not in os.listdir(output_folder):
             os.mkdir(f'{output_folder}/external_{ex_counter}')
-        if bool_color_bgrd and bool_save_pics and (f'external_{ex_counter}' not in os.listdir(f'{output_folder}_colored')):
-            os.mkdir(f'{output_folder}_colored/external_{ex_counter}')
+
+
+    @staticmethod
+    def save_img(img, path):
+        data = Image.fromarray(img)
+        data.save(path)
